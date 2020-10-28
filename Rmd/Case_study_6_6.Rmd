@@ -1,0 +1,81 @@
+---
+title: "Simulated_case_study_6_6"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+Simulation of two communities depicted in chapter 6 in JDSM
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simulating species niches
+
+### Construct random phylogeny
+
+Phylogeny for 100 species converted into a phylogenetic correlation matrix.
+
+```{r, echo = FALSE}
+library(Hmsc)
+library(ape)
+library(MASS)
+```
+
+```{r, echo = FALSE}
+ns <- 100
+phy <- rcoal(n = ns, 
+             tip.label = sprintf('sp_%.3d', 1:ns),
+             br = "coalescent")
+C <- vcv(phy, model = "Brownian", corr = TRUE)
+
+plot(phy)
+```
+
+## Sample trait values
+
+-   Community A: Traits sampled independently from standard normal distribution
+
+-   Community B: Traits sampled from multivariate normal distribution
+
+    $\rightarrow$ variance-covariance matrix equals the phylogenetic correlation matrix
+
+-   Intercept has been added
+
+```{r, echo = FALSE}
+Tr.A <- cbind(rep(1, ns), rnorm(ns))
+Tr.B <- cbind(rep(1, ns), mvrnorm(n = 1, 
+                                  mu = rep(0, ns),
+                                  Sigma = C))
+```
+
+## Link species traits and niches
+
+```{r, echo = FALSE}
+gamma <- cbind(c(-2,2), c(-1,1))
+mu.A <- gamma %*% t(Tr.A)
+mu.B <- gamma %*% t(Tr.B)
+```
+
+## Generate species niches
+
+Assumptions:
+
+-    Community A: residual variation is **phylogenetically fully structured**
+
+-   Community B: residual variation is **fully independent among species**
+
+```{r}
+V2 = diag(2)
+beta.A = matrix(mvrnorm(n = 1, 
+                        mu = as.vector(mu.A), 
+                        Sigma = kronecker(C, V2)), 
+                ncol = ns)
+beta.B = matrix(mvrnorm(n = 1, 
+                        mu = as.vector(mu.B), 
+                        Sigma = kronecker(diag(ns), V2)), 
+                ncol = ns)
+```
+
+## Simulate species data 
