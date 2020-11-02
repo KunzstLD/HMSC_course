@@ -18,19 +18,20 @@ knitr::opts_chunk$set(echo = TRUE)
 Phylogeny for 100 species converted into a phylogenetic correlation matrix.
 
 ```{r, echo = FALSE}
+
 library(Hmsc)
 library(ape)
 library(MASS)
 ```
 
 ```{r, echo = FALSE}
+
 ns <- 100
 phy <- rcoal(n = ns, 
              tip.label = sprintf('sp_%.3d', 1:ns),
              br = "coalescent")
 C <- vcv(phy, model = "Brownian", corr = TRUE)
-
-plot(phy)
+# plot(phy)
 ```
 
 ## Sample trait values
@@ -62,20 +63,206 @@ mu.B <- gamma %*% t(Tr.B)
 
 Assumptions:
 
--    Community A: residual variation is **phylogenetically fully structured**
+-   Community A: residual variation is **phylogenetically fully structured**
 
 -   Community B: residual variation is **fully independent among species**
 
 ```{r}
 V2 = diag(2)
-beta.A = matrix(mvrnorm(n = 1, 
+beta.A <- matrix(mvrnorm(n = 1, 
                         mu = as.vector(mu.A), 
                         Sigma = kronecker(C, V2)), 
                 ncol = ns)
-beta.B = matrix(mvrnorm(n = 1, 
+beta.B <- matrix(mvrnorm(n = 1, 
                         mu = as.vector(mu.B), 
                         Sigma = kronecker(diag(ns), V2)), 
                 ncol = ns)
 ```
 
-## Simulate species data 
+## Simulate species data
+
+Single environmental covariate:
+
+```{r}
+# include the intercept
+n <- 50
+X <- cbind(rep(1, n), rnorm(n))
+
+# calculate linear predictors
+L.A <- X %*% beta.A
+L.B <- X %*% beta.B
+```
+
+Convert linear predictors into community data:
+
+```{r}
+
+# using the probit model for presences/absence 
+Y.A <- 1*((L.A+matrix(rnorm(n*ns), ncol = ns)) > 0)
+Y.B <- 1*((L.B+matrix(rnorm(n*ns), ncol = ns)) > 0)
+```
+
+## Explore the raw data
+
+```{r}
+# species richness
+S.A <- rowSums(Y.A)
+# species prevalences
+P.A <- colMeans(Y.A)
+S.B <- rowSums(Y.B)
+P.B <- colMeans(Y.B)
+
+# plot(X[,2], S.A)
+# plot(X[,2], S.B)
+# hist(P.A)
+# hist(P.B)
+```
+
+## Date preparation & analysis
+
+```{r}
+
+# prep
+community <-  "A"
+Y <- switch(community, "A" = Y.A, "B" = Y.B)
+colnames(Y) <- phy$tip.label
+Tr <- switch(community, "A" = Tr.A, "B" = Tr.B)
+TrData <- data.frame(trait = Tr[, 2])
+XData <- data.frame(x = X[, 2])
+
+# model
+m <- Hmsc(Y = Y,
+          XData = XData, 
+          XFormula = ~ x, 
+          TrData = TrData, 
+          TrFormula = ~ trait, 
+          phyloTree = phy, 
+          distr = "probit")
+
+# model fitting
+nChains <- 2
+thin <- 5
+samples <- 1000
+transient <- thin*500
+verbose <- 500*thin
+m = sampleMcmc(m, 
+               thin = thin, 
+               samples = samples,
+               transient = 500*thin,
+               nChains = nChains,
+               verbose = verbose)
+
+# extract posterior distribution 
+mpost <- convertToCodaObject(m)
+
+# evaluate MCMC convergence:
+# effective size
+effectiveSize(mpost$Rho)
+
+# scale reduction factors
+gelman.diag(mpost$Rho,
+            multivariate = FALSE,
+            autoburnin = FALSE)$psrf
+```
+
+## Explanatory and predictive power of HMSC model
+
+```{r}
+preds <- computePredictedValues(m)
+MF <- evaluateModelFit(hM = m, 
+                       predY = preds)
+
+# with CV 
+partition <- createPartition(m, nfolds = 2)
+preds <- computePredictedValues(m, 
+                                partition = partition)
+MFCV <- evaluateModelFit(hM = m,
+                         predY = preds)
+```
+
+## Examining parameter estimates 
+
+Visualisation of estimated species niches
+
+```{r}
+postBeta <- getPostEstimate(m,
+                            parName = "Beta")
+
+# phylogenetic signal in the ß parameters
+# entire clades show blue or red blocks 
+plotBeta(m , 
+         post = postBeta,
+         param = "Sign",
+         plotTree = TRUE, 
+         supportLevel = 0.95, 
+         split = 0.4,
+         spNamesNumbers = c(F,F))
+
+```
+
+How species niches estimation depends on species traits?
+
+```{r}
+postGamma <- getPostEstimate(m, parName = "Gamma")
+plotGamma(m, 
+          post = postGamma,
+          param = "Sign", 
+          supportLevel = 0.95)
+```
+
+Parameter estimate for the phylogenetic signal
+
+```{r}
+
+# evidence for phylogenetic signal
+# (95 % credible interval close to one)
+summary(mpost$Rho)$quantiles
+```
+
+## Did including traits and phylogenies improve predictions?
+
+Fit the same model to the same data, but without including information about traits and phylogeny.
+
+```{r}
+m <- Hmsc(Y = Y, 
+          XData = XData,
+          XFormula = ~x,
+          distr = "probit")
+m <- sampleMcmc(m, 
+                thin = thin,
+                samples = samples,
+                transient = transient,
+                nChains = nChains,
+                verbose = verbose)
+
+# model fit
+preds <- computePredictedValues(m)
+MF.NTP <- evaluateModelFit(hM = m, 
+                           predY =  preds)
+
+preds <- computePredictedValues(m, 
+                                partition = partition)
+MFCV.NTP <- evaluateModelFit(hM = m,
+                             predY = preds)
+
+Delta.TjurR2 <- MFCV$TjurR2 <- MFCV.NTP$TjurR2
+
+# Species prevalence vs. Delta TjurR2
+plot(P.A, Delta.TjurR2)
+```
+
+How well does estimated and true parameter values match?
+
+```{r}
+beta.slope.true <- beta.A[2, ]
+beta.slope.est <- postBeta$mean[2, ]
+postBeta.NTP <- getPostEstimate(m,
+                                 parName = "Beta")
+beta.slope.est.NTP <- postBeta.NTP$mean[2, ]
+
+# comparison
+plot(beta.slope.true, beta.slope.est)
+plot(beta.slope.true, beta.slope.est.NTP)
+```
+
+## Re-run with community B... 
