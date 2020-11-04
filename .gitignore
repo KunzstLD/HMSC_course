@@ -5,3 +5,11 @@
 
 # ignore TODO list
 TODO
+
+# preliminary results
+Pilot_model/Prelim_results
+
+# Data, methods etc.
+Pilot_model/Data 
+Pilot_model/methods.docx
+Pilot_model/TaxonomicTree.pdf
