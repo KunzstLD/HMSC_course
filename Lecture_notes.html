@@ -1,0 +1,189 @@
+<h1 id="table-of-contents">Table of Contents</h1>
+<ul>
+<li><a href="#table-of-contents">Table of Contents</a></li>
+<li><a href="#organisation">Organisation</a></li>
+<li><a href="#introduction-to-community-ecology--typical-data-collected-in-community-ecology">Introduction to community ecology &amp; Typical data collected in community ecology</a>
+<ul>
+<li><a href="#community-ecology-assemblage-and-their-interactions">Community ecology: Assemblage and their interactions</a></li>
+<li><a href="#typical-data-collected-in-community-ecology">Typical data collected in community ecology?</a></li>
+</ul></li>
+<li><a href="#overview-of-the-structure-of-hmsc">Overview of the structure of HMSC</a>
+<ul>
+<li><a href="#theoretical">Theoretical</a></li>
+<li><a href="#practical">Practical</a></li>
+</ul></li>
+<li><a href="#how-hmsc-models-variation-in-species-niches">How HMSC models variation in species niches?</a>
+<ul>
+<li><a href="#how-to-utilize-traits-and-phylogeny">How to utilize traits and phylogeny?</a>
+<ul>
+<li><a href="#traits">Traits</a></li>
+<li><a href="#phylogeny">Phylogeny</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#case-studies">Case Studies</a>
+<ul>
+<li><a href="#pipeline">Pipeline:</a></li>
+</ul></li>
+<li><a href="#break-out-groups-0411">Break out groups (04.11.)</a>
+<ul>
+<li><a href="#model-selection">Model selection</a></li>
+<li><a href="#traits-1">Traits</a></li>
+</ul></li>
+</ul>
+<h1 id="organisation">Organisation</h1>
+<ul>
+<li>Break-out groups Wednesday and Thursday for Europe</li>
+<li>The course covers more or less the whole book</li>
+</ul>
+<h1 id="introduction-to-community-ecology-typical-data-collected-in-community-ecology">Introduction to community ecology &amp; Typical data collected in community ecology</h1>
+<h2 id="community-ecology-assemblage-and-their-interactions">Community ecology: Assemblage and their interactions</h2>
+<p><em>John H. Lawton (1999)</em>: Are there general laws in ecology?</p>
+<p>Although conceptual frameworks have been developed in the last decades</p>
+<p>HMSC follows the definition from <em>Fauth et al. (2016)</em>: Simplifying the Jargon of Community Ecology: A conceptual approach</p>
+<p>Prevailing theories: - Assembly rules framework:</p>
+<p><span class="math inline">→</span> restricted species combinations to which competitive interactions can lead (see <em>Diamond (1975)</em>)</p>
+<p><span class="math inline">→</span> nowadays assembly processes: filters act at various spatial scales</p>
+<p><span class="math inline">→</span> ecological assembly rules: environmental filtering (<span class="math inline"><em>β</em></span>), biotic filtering (<span class="math inline"><em>Ω</em></span>), dispersal (<span class="math inline"><em>α</em></span>), stochasticity (<span class="math inline"><em>R</em><sup>2</sup></span>)</p>
+<p><span class="math inline">→</span> species traits (<span class="math inline"><em>γ</em></span>) influence <span class="math inline"><em>Ω</em></span>, <span class="math inline"><em>α</em></span> and <span class="math inline"><em>β</em></span></p>
+<p><span class="math inline">→</span> phylogeographic assembly rules</p>
+<ul>
+<li>Metacommunity theory</li>
+<li>Vellends theory of ecological communities</li>
+</ul>
+<p><span class="math inline">→</span> HMSC components can be related to ecological theory</p>
+<p>Four archetypes of metacommunity theory: - Neutral paradigm - Patch dynamics - species sorting - mass effects</p>
+<p><strong>Read</strong>: <em>Ovaskainen et al: What can observational data reveal about metacommunity processes?</em></p>
+<h2 id="typical-data-collected-in-community-ecology">Typical data collected in community ecology?</h2>
+<p>Lab experiments &amp; field experiments (manipulative) &amp; field data (non-manipulative)</p>
+<p><span class="math inline">→</span> non-manipulative field data are shaped by full complexity of assembly processes</p>
+<p><span class="math inline">→</span> Abundances/rel. Abundances, presence-absence, spatial-temporal design, environmental covariates, traits, phylogeny</p>
+<h1 id="overview-of-the-structure-of-hmsc">Overview of the structure of HMSC</h1>
+<h2 id="theoretical">Theoretical</h2>
+<p>Multivariate hierarchical generalized linear mixed model fitted with Bayesian inference</p>
+<p>HMSC is a correlative model!</p>
+<ul>
+<li><p>HMSC is a joined distribution modelling approach, not stacked:</p>
+<p><span class="math inline">→</span> There is random variation in pairs of species (co-occurrences, species associations)</p>
+<p><span class="math inline">→</span> Share information across species while modelling</p></li>
+<li><p><strong>Q:</strong> Species associations are modelled as random effect:</p>
+<p><span class="math inline">→</span> Dimensionality problem (cannot put too many as predictors/as fixed effects)</p>
+<p><span class="math inline">→</span> Species occurrences are the response variable, HMSC creators refrain from putting species to explanatory variable part</p></li>
+</ul>
+<p>Species associations are modelled using a latent approach, otherwise to computational intensive</p>
+<h2 id="practical">Practical</h2>
+<ol type="1">
+<li><p>Setting model structure and fit the model</p>
+<p><span class="math inline">→</span> call <em>Hmsc()</em></p>
+<p><span class="math inline">→</span> model is defined but not fitted! (unlike <em>lm()</em> for example)</p>
+<p><span class="math inline">→</span> prior: default prior applies too most datasets (according to Ovaskainen)</p>
+<p><span class="math inline">→</span> call: <em>sampleMcmc()</em> for model fitting. Start always with a small amount of thinning!</p></li>
+<li><p>Examining MCMC convergence (how good is the sample of the posterior distribution</p>
+<p><span class="math inline">→</span> represent the posterior distribution)</p>
+<p><span class="math inline">→</span> Use <em>library(coda)</em> utilities (loaded when loading HMSC package)</p>
+<p><span class="math inline">→</span> Effective Size (should be close to actual sample size), Gelman diagnostics, Trace plots</p>
+<p><span class="math inline">→</span> Run the whole pipeline also with bad convergence to obtain preliminary results</p></li>
+<li><p>Evaluating model fit and comparing model</p>
+<p><span class="math inline">→</span> Bigger issue than variable selection: Should one include traits, phylogeny, spatial structure and how?</p>
+<p><span class="math inline">→</span> WAIC (widely applicable AIC)</p>
+<p><span class="math inline">→</span> Predictive power (how well does the model predict/explain the data?). Gives insight in how models differ (prediction difference, bias etc.)</p>
+<p><span class="math inline">→</span> CV used for predictive power (the more variables one includes the less good predictions will be with this approach?), without CV for all data than model fitted for all data for explanatory purposes <span class="math inline">→</span> Output: <span class="math inline"><em>T</em><em>j</em><em>u</em><em>r</em><em>R</em><sup>2</sup></span> (range from -1 to 1), <span class="math inline"><em>A</em><em>U</em><em>C</em></span> (range from 0 to 1)</p>
+<p><span class="math inline">→</span> CV can be done across sampling units and also across <strong>species</strong>! (conditional predictions)</p>
+<p><span class="math inline">→</span> Predictive values can be checked for variance in residuals</p></li>
+<li><p>Exploring parameter estimates</p>
+<p><span class="math inline">→</span> One joint posterior distribution for all parameters</p>
+<p><span class="math inline">→</span> Could use tools of the coda package, or Hmsc functions, e.g.: <em>plotBeta(m, post, supportLevel)</em></p>
+<p>positive, zero or negative slope of beta parameters (species niches); supportLevel: how much posterior probability?</p>
+<p><span class="math inline">→</span> Association plots: <em>corrplot(computeAssociations(m))</em></p>
+<p><span class="math inline">→</span> Variance partitioning: how much variation is explained by different compartments of the model? (<em>computeVariancePartitioning(m)</em>)</p>
+<p><span class="math inline">→</span> How is variance partitioning calculated? See section 5.5. in <em>Joint Species Distributions Modelling</em></p></li>
+<li><p>Making predictions</p>
+<p>5.1 prepare predictions: predictor variables of env. covariates + predictor values of spatio-temporal context</p>
+<p><span class="math inline">→</span> e.g.:</p>
+<p><em>Gradient &lt;- constructGradient(m, focalVariable)</em></p>
+<p><em>pred &lt;- predict(m, Gradient)</em></p>
+<p><em>plotGradient(m, Gradient, pred, measure, showData)</em></p>
+<p>5.2 Make predictions (Y new) with uncertainty estimate (95 % credible interval):</p>
+<ul>
+<li><p>General:</p>
+<p><span class="math inline">→</span> Construct gradient of new data for variable of interest (focalvariable) to make predictions on</p>
+<p><span class="math inline">→</span> The non.focalvariables are the other variables needed for predictions (e.g. <em>list(hab = 1)</em> uses the most common type)</p>
+<p><span class="math inline">→</span> predict model on gradient with <em>predict()</em> function (creates posterior predicted distribution, see MCMC)</p>
+<p><span class="math inline">→</span> expected = TRUE: predicting probabilities; expected = FALSE: predicting realisations (e.g. Presence-absence) mean over this gives the posterior mean</p></li>
+<li><p>Spatial predictions:</p>
+<p><span class="math inline">→</span> New X Data &amp; new spatial data</p>
+<p><span class="math inline">→</span> Prediction for each posterior sample</p></li>
+</ul>
+<p>5.3 Post-processing and interpretation (species richness, community-weighted mean traits, …)</p></li>
+</ol>
+<h1 id="how-hmsc-models-variation-in-species-niches">How HMSC models variation in species niches?</h1>
+<ul>
+<li><p>Full HMSC case: multiple species, environ. covariates, traits, phylogeny</p></li>
+<li><p>Linear predictor is now a matrix! <span class="math inline"><em>L</em><sub><em>i</em><em>j</em></sub></span> , <span class="math inline"><em>i</em>=</span> sampling unit, <span class="math inline"><em>j</em>=</span> species</p></li>
+<li><p><span class="math inline"><em>β</em></span> is also a matrix</p></li>
+<li><p>Environ. variables do not depend on species (i.e. <span class="math inline"><em>x</em><sub><em>i</em><em>k</em></sub></span>, where <span class="math inline"><em>k</em>=</span> covariate, but it can be changed to be species-specific</p></li>
+<li><p>Joint species distribution model: model is fitted simultaneously, so species models are dependent on each other</p></li>
+<li><p>How are species niches structured? HMSC implements continuous variation in species niches (in contrast to <em>Hui et al.</em> species archetype models)</p></li>
+<li><p>Parameters estimated <span class="math inline">→</span> used to estimate Variance-Covariance matrix ?</p>
+<p><span class="math inline">→</span> Borrowing information from other species</p></li>
+</ul>
+<h2 id="how-to-utilize-traits-and-phylogeny">How to utilize traits and phylogeny?</h2>
+<p>See chapter 6</p>
+<h3 id="traits">Traits</h3>
+<ul>
+<li><p>Modelled as regression to species traits</p></li>
+<li><p>Expected value <span class="math inline"><em>μ</em></span> is specific to the trait expressed by each species (<span class="math inline"><em>t</em><sub><em>j</em><em>l</em></sub></span>, <span class="math inline"><em>t</em>=</span> trait value) and can thus be modified by the trait information</p></li>
+<li><p><span class="math inline"><em>γ</em><sub><em>k</em><em>l</em></sub></span> parameter: How species niches depend on species traits (one parameter for community as response to covariate, e.g. climatic conditions)</p></li>
+</ul>
+<h3 id="phylogeny">Phylogeny</h3>
+<ul>
+<li><p>Phylogenetic tree or taxonomic table</p></li>
+<li><p>Correlation between species in phylogenetic trees: That’s the fraction of shared evolutionary history. Can be expressed in a correlation matrix.</p></li>
+<li><p>Residual variation in species niches (Matrix <span class="math inline"><em>M</em></span>, expected species niches) is modelled as a weighted average of correlation matrix and (modified) identity matrix (<span class="math inline"><em>W</em></span>)</p></li>
+<li><p><span class="math inline"><em>W</em> = <em>ρ</em><em>C</em> + (1 − <em>ρ</em>)<em>I</em></span></p></li>
+<li><p><span class="math inline"><em>ρ</em></span> measures the strength of the phylogenetic signal in species niches</p></li>
+</ul>
+<h1 id="case-studies">Case Studies</h1>
+<h2 id="pipeline">Pipeline:</h2>
+<ol type="1">
+<li><p>Read data</p></li>
+<li><p>Define models</p>
+<p>Random effect:</p>
+<ul>
+<li>For plots that repeat (in studyDesign matrix) spatial data should not repeat (xy matrix)</li>
+<li><em>HmscRandomLevel()</em> function; could use sData for spatial or units for temporal data or site names</li>
+</ul></li>
+<li><p>Fit models</p>
+<ul>
+<li><p>Always start with a model for smaller data for checking (full model will take long)</p></li>
+<li><p>E.g.: 1,5 - Thinning 1, 5 samples per Chain</p></li>
+<li><p>iterations = (samples* thinning + transient)* nchains</p></li>
+<li><p>thinning: iterations considered (not all iterations are considered, this would be too big otherwise)</p></li>
+<li><p>samples taken from the posterior distribution</p></li>
+<li><p>transient: first iterations that are “thrown away”</p></li>
+<li><p>chains: independent runs sampling the posterior distribution (the more the better)</p></li>
+</ul></li>
+<li><p>Evaluate convergence</p></li>
+<li><p>Compute model fit</p></li>
+<li><p>Show model fit</p></li>
+<li><p>Show parameter estimates</p></li>
+<li><p>Make predictions</p></li>
+</ol>
+<h1 id="break-out-groups-04.11.">Break out groups (04.11.)</h1>
+<h2 id="model-selection">Model selection</h2>
+<p>Possible: - Select apriori: e.g. with correlation community data axis (Y) related to covariates (X)</p>
+<p>Approach Mirkka Jones (said earlier): <em>In fitting pilot models, where people did not suggest 2-3 X covariates themselves, I did the following as a quick route to selecting from among numerous X-predictors: I calculated the correlations between the X-predictors and the first couple of axes of an ordination of community composition based on the full Y-matrix. I included those X variables in the hmsc model that had a high positive or negative correlations with the first couple of ordination axes (but excluding any X covariates that covaried strongly).</em></p>
+<ul>
+<li>Use ecological theory!</li>
+<li>Strong collinear environmental variables should be removed (but which - left to the researcher)</li>
+</ul>
+<h2 id="traits-1">Traits</h2>
+<ul>
+<li><p>Use of PCA or similar techniques (fuzzy PCA/Correspondence analysis) to obtain trait syndromes.</p>
+<p>Jari Oksanen: <em>There are different styles and philosophies. Personally I don’t like using PC axes, because you don’t know too well how they relate to your observations. I also prefer to pick up single tangible variables. But there are two viewpoints here. Moreover, these PCs only select among collinear X-variates independent of their explanatory power to Y.</em></p></li>
+<li><p>Interpretation of Gamma plots: Follows the interpretation of the Beta plots if single traits are used</p>
+<ul>
+<li>If traits are combined into a trait syndroms (e.g. via PCA) need to look at how the taxa are distributed along the PCA axis used and how much covariance is in the data? <span class="math inline">→</span> Jari Oksanen is not a fan of this approach</li>
+</ul></li>
+<li><p>Variance that traits explain in species niches and in species occurrences can be found in matrix <span class="math inline"><em>V</em></span> (TODO check again chapter 6.3)</p></li>
+<li><p>Trait interactions can be included!</p></li>
+</ul>

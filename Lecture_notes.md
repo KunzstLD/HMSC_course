@@ -16,6 +16,11 @@ output:
   - [How to utilize traits and phylogeny?](#how-to-utilize-traits-and-phylogeny)
     - [Traits](#traits)
     - [Phylogeny](#phylogeny)
+- [Case Studies](#case-studies)
+  - [Pipeline:](#pipeline)
+- [Break out groups (04.11.)](#break-out-groups-0411)
+  - [Model selection](#model-selection)
+  - [Traits](#traits-1)
 
 
 # Organisation
@@ -93,10 +98,6 @@ Species associations are modelled using a latent approach, otherwise to computat
 
 ## Practical
 
-Finding relevant covariates if many covariates are present. Approach Mirkka Jones:
-
-*In fitting pilot models, where people did not suggest 2-3 X covariates themselves, I did the following as a quick route to selecting from among numerous X-predictors: I calculated the correlations between the X-predictors and the first couple of axes of an ordination of community composition based on the full Y-matrix. I included those X variables in the hmsc model that had a high positive or negative correlations with the first couple of ordination axes (but excluding any X covariates that covaried strongly).*
-
 1) Setting model structure and fit the model
 
     $\rightarrow$ call *Hmsc()*
@@ -126,7 +127,7 @@ Finding relevant covariates if many covariates are present. Approach Mirkka Jone
     
     $\rightarrow$ Predictive power (how well does the model predict/explain the data?). Gives insight in how models differ (prediction difference, bias etc.) 
     
-    $\rightarrow$ CV used for predictive power (the more variables one includes the less good predictions will be with this approach?), without CV for all data than model fitted for all data for explanatory purposes $\rightarrow$ Output: $TjurR^2$, $AUC$
+    $\rightarrow$ CV used for predictive power (the more variables one includes the less good predictions will be with this approach?), without CV for all data than model fitted for all data for explanatory purposes $\rightarrow$ Output: $TjurR^2$ (range from -1 to 1), $AUC$ (range from 0 to 1)
     
     $\rightarrow$ CV can be done across sampling units and also across **species**! (conditional predictions)
 
@@ -223,3 +224,67 @@ See chapter 6
 - $W = \rho C + (1- \rho)I$
 
 - $\rho$ measures the strength of the phylogenetic signal in species niches 
+
+# Case Studies
+
+## Pipeline:
+1) Read data
+2) Define models
+
+    Random effect: 
+
+    - For plots that repeat (in studyDesign matrix) spatial data should not repeat (xy matrix)
+    - *HmscRandomLevel()* function; could use sData for spatial or units for temporal data or site names 
+
+3) Fit models
+   
+    - Always start with a model for smaller data for checking (full model will take long)
+
+    - E.g.: 1,5 - Thinning 1, 5 samples per Chain
+
+    - iterations = (samples* thinning + transient)* nchains
+    
+    - thinning: iterations considered (not all iterations are considered, this would be too big otherwise)
+
+    - samples taken from the posterior distribution 
+    
+    - transient: first iterations that are "thrown away" 
+
+    - chains: independent runs sampling the posterior distribution (the more the better)
+
+4) Evaluate convergence
+5) Compute model fit
+6) Show model fit
+7) Show parameter estimates
+8) Make predictions
+
+
+# Break out groups (04.11.)
+
+## Model selection
+
+Possible: 
+- Select apriori: e.g. with correlation community data axis (Y) related to covariates (X)
+  
+  Approach Mirkka Jones (said earlier):
+  *In fitting pilot models, where people did not suggest 2-3 X covariates themselves,
+   I did the following as a quick route to selecting from among numerous X-predictors: I calculated the correlations between the X-predictors and the first couple of axes of an ordination of community composition based on the full Y-matrix. I included those X variables in the hmsc model that had a high positive or negative correlations with the first couple of ordination axes (but excluding any X covariates that covaried strongly).*
+
+- Use ecological theory!
+- Strong collinear environmental variables should be removed (but which - left to the researcher)
+
+## Traits
+
+- Use of PCA or similar techniques (fuzzy PCA/Correspondence analysis) to obtain trait syndromes.
+
+  Jari Oksanen:
+  *There are different styles and philosophies. Personally I don’t like using PC axes, 
+  because you don’t know too well how they relate to your observations. I also prefer to pick up single tangible variables. But there are two viewpoints here. Moreover, these PCs only select among collinear X-variates independent of their explanatory power to Y.* 
+- Interpretation of Gamma plots: Follows the interpretation of the Beta plots if single traits are used
+
+    - If traits are combined into a trait syndroms (e.g. via PCA) need to look at how the taxa are distributed along the PCA axis used and how much covariance is in the data?
+    $\rightarrow$ Jari Oksanen is not a fan of this approach  
+
+- Variance that traits explain in species niches and in species occurrences can be found in matrix $V$ (TODO check again chapter 6.3)
+
+- Trait interactions can be included!  

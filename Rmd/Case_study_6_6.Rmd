@@ -180,7 +180,7 @@ MFCV <- evaluateModelFit(hM = m,
                          predY = preds)
 ```
 
-## Examining parameter estimates 
+## Examining parameter estimates
 
 Visualisation of estimated species niches
 
@@ -265,4 +265,4 @@ plot(beta.slope.true, beta.slope.est)
 plot(beta.slope.true, beta.slope.est.NTP)
 ```
 
-## Re-run with community B... 
+## Re-run with community B...

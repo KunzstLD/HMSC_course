@@ -1,0 +1,98 @@
+## -- Notes Breakout Session with Gleb Thikonov -- ##
+# 04.11.20
+# 14:05 start
+# 16:00 end
+- focused on technical aspects
+- questions are asked in the chat then discussed
+-q1-
+  Is it possible to implement the HMSC model in a three-dimensional spatial format with spatial-random effects? This would for example be interresting in marine systems.
+-a1-
+  GT reffered to "Spatial gaussian processes" but did not explain them further.
+  Three spatial dimenons are conceptually similar to spatio-temporal modelling. This is not implemented currently but spatio-temporal random factors are planned for future versions.
+-q2-
+  Firstly, it was mentioned that positive or negative associations were determined based on random. How was random defined within the model? Curveball, shuffle, etc?
+  Second, are these associations maintained during the prediction phase? So if  we project to another region, the spatial associations between species would be the same
+  as those measured in the training data?
+-a2-
+-1-
+  Correction: Associations are based on the latent variable part of the model. This does not mean that they are random but rather that they are realizations of a random process.
+  (Sound very much like the same thing to me right now, probably bad wording).
+  Random variables are random but their covariance is\can be fixed.
+-2-
+  yes.
+-q3-
+  As a Stan-user, I started to code up a Stan-version of HMSC some time ago. The fixed part (beta's and influence of traits and phylogeny) is quite straightforward to implement.
+  The random part is a bit more complex: especially the latent factor part. I started with the latent factor implementation of Deschamps 2018 (https://www.researchgate.net/publication/325405531_Fitting_Generalized_Bayesian_Factor_Models_with_stan),
+  but got quite a lot of divergent transitions, even without spatiotemporal structure. I didn't put too much effort to improve the code yet, though. Out of curioisity, do you have experience with coding up this part in Stan?
+-a3-
+  Its not easy. Supplement 3 of "Joint species distribution modelling in R with HMSC" features implementation in STAN. STAN is quite slow (i think this was discussed in some lecture).
+-q4-
+  is it possible to include spatial information not based on euclidean distance among locations, but for example river-distances. That is, using not isometric distance matrix?
+-a4-
+  yes.
+-q5-
+  How to proceedin HMSC when each of the traits of a species are subdivided into several other sub-traits? this is the case with the traits that we study in macroinvertebrates,
+  for example. In fact several sub-traits are nested to form a main traits.
+  Second, How does HMSC solve redundancy problems between covariates? I am curious to see HMSC take this into account.  I am not able to speak. Thank you
+-a5-
+  Regarding the first, I think he doesn't quite get the question. Want's to add to list for final discussion on Friday. Later Otso chimed in. Correlated traits should be trated like correlted covariates.
+  On this also see q15.
+  Regarding the second, like all others. Look beforehand, decide based on subject knowledge.
+-q6-
+  From my experience running HMSC models, I achieve similar responses using probit and lognormal poisson models to analyse presence\absence and abundance data.
+  However, when using abundance conditional on presence (i.e the hurdle model), the results are markedly different from a probit, or lognormal poisson model, often showing
+  much weaker correlations between species and covariates, or species-species associations. Why would this be the case? Are we modelling something fundamentally different by
+  using the hurdle model?
+-a6-
+  didn't catch that.
+-q7-
+  When using a phylogeny (or any phylogenetic correlation matrix), is the relative effect of two species on one another symmetric? I.e. suppose rho = 1, and suppose sister species A and B have a set of betas beta_A and
+  beta_B. Will beta_A and beta_B be pulled towards one another with equal strength, or will one species (the one with a stronger fixed effect, higher marginal likelihood, or that occurs more widely) have
+  a stronger effect on the other?
+  Unrelated: Is it possible to fix any of the model parameters during sampling? For instance if I have independently estimated rho in some prior experiment and want to use that value, can I
+  tell Hmsc not to estimate it? Perhaps by providing a non-random prior on that fixed value?
+-a7-
+  Not sure about answer to first part.
+  Yes fixing parameters in possible in the sampleMCMC function.
+-q8-
+  Is the phylogenetic signal pooled across species? Or are they pair-wise specific? Because there may be some closely related species whose niche may be more
+  different than observed across the entire dataset
+-a8-
+  From what I understood, pooled across species. Implementing the other thing would be hard.
+-q8-
+  When runnning Hmsc in parallel, verbose does not work. Is there a way to follow the progress of the different chains?
+-a8-
+  No
+-q9-
+  (question via voice chat) Why did you implement your own Gibbs Samples?
+-a9-
+  Curiosity, better and deeper understanding of the own model/ method
+-q10-
+  What were the criteria for using r for HMSC?
+-a10-
+    Heavily used by ecologists. Started out in MatLab. Some new developments in Python+Tensorflow. Julia interesting but not many libraries yet, also relatively small userbase.
+-q11-
+    Is it also possible to model variance of response (not only a mean)? Link to brms package vignette added to question: https://paul-buerkner.github.io/brms/articles/brms_distreg.html
+-a11-
+    Had a paper on that (Tikhonov et al. 2017 MEE). There can be extensions but no research done yet on performance (? not sure that's what he ment). Calls it non-stationary covariance models.
+-q12-
+    Does HMSC have to be faster if you compute on a GPU?
+-a12-
+    Depends on GPU. Not his expertise. GPU support will probably be implementd at sometime in the future.
+-q13-
+    As the covariances with phylogeny etc is it impossible to split up the likelihood calculation into partial sums? i.e. can you only parallelise individual calculations (like inversions)
+    “calculations” probably isn’t a very useful word there
+-a13-
+   ???
+-q14-
+    How do we deal with data with prior distributions not covered by HMSC? For example exponential distribution for a trait (e.g. time to reproduction) or beta distribution for probability of occurrence data?
+-a14-
+    What do you mean by distribution for traits? Because currently traits are fixed. Regarding the data observation models, currently HMSC is constrained to those where data optimizations are available.
+    This is one of the main reasons they currently look into other ways to fit their model.
+-q15-
+    In many HMSC analyses, land cover is used as covariate(s), e.g. fraction of woodland, agricultural land etc..
+    These are compositional: the different cover classes sum to 100%. This might induce spurious correlations, which
+    might influence inference (not predictions). I might've missed it in the book or this week, but do you now of a
+    convenient approach to deal with this problem?
+-a15-
+    Drop variables or do a PCA. If you have variables that sum to one, this can lead to indeterminancy or at least Hauck Donner Effect.
