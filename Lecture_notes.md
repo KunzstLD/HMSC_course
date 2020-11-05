@@ -18,9 +18,11 @@ output:
     - [Phylogeny](#phylogeny)
 - [Case Studies](#case-studies)
   - [Pipeline:](#pipeline)
-- [Break out groups (04.11.)](#break-out-groups-0411)
+- [Break out groups (04.11. and 05.11)](#break-out-groups-0411-and-0511)
   - [Model selection](#model-selection)
   - [Traits](#traits-1)
+- [How to write materials and methods when using HMSC](#how-to-write-materials-and-methods-when-using-hmsc)
+- [How to write the results section?](#how-to-write-the-results-section)
 
 
 # Organisation
@@ -253,18 +255,26 @@ See chapter 6
     - chains: independent runs sampling the posterior distribution (the more the better)
 
 4) Evaluate convergence
+    - Potential scale reduction factors: Model creates several latent random factors, the first one is the most important to look at
 5) Compute model fit
+    - Explanatory and predictive power (using CV); if one adds more covariates predictive power might go down at some point while the explanatory power will always go up when adding covariates
+    - WAIC: theoretically corresponds to leave-one out CV $\rightarrow$ quite sensitive to convergence
+    - $AUC$ and $TjurR^2$ are less sensitive to convergence
+    - Model fit can mean: Accuracy, discrimination, calibration & precision, e.g., model comparison paper from *Norberg et al. 2019*
+    - $AUC$ and $TjurR^2$ measure discrimination
 6) Show model fit
 7) Show parameter estimates
 8) Make predictions
 
 
-# Break out groups (04.11.)
+# Break out groups (04.11. and 05.11)
+
+04.11: 
 
 ## Model selection
 
 Possible: 
-- Select apriori: e.g. with correlation community data axis (Y) related to covariates (X)
+- Select a priori: e.g. with correlation community data axis (Y) related to covariates (X)
   
   Approach Mirkka Jones (said earlier):
   *In fitting pilot models, where people did not suggest 2-3 X covariates themselves,
@@ -288,3 +298,153 @@ Possible:
 - Variance that traits explain in species niches and in species occurrences can be found in matrix $V$ (TODO check again chapter 6.3)
 
 - Trait interactions can be included!  
+  
+05.11:
+
+- Q1) Plotting: inherits from *plot()* function, can use las for example, Name order and names can be changed by changing parameter VP
+
+- Q2) Hurdle-models with more than two levels, is this possible? E.g. Community: bushes with wasps with parasites -> Problem is independent chains of the parameter estimates, one can't compare MCMC samples  
+
+- Q3) There are no hierarchical levels for **Y** (yet)
+
+- Q4) Missing values: can be missing in **Y**, but HMSC cannot impute values (e.g. for **X**)
+
+- Jari's wisdom: 
+  - When evaluating $\lambda$ parameter, run more chains if possible because that's quite complicated to determine
+
+  - For MCMC convergence, thinning is important!
+
+- Q5) eDNA Data: How to handle millions of data?
+  - Jari: Millions is too much dude!
+
+- (Jumped into Tikhonov's session) 
+- Q6) Combination of trait values and indicator values is possible (Question was complicated about the wasps, galls and parasites and all what hangs around)
+
+- Q7) Several plots exposed to some treatment -> random effects are correlated with treatment effects. Needs to be specified in **X** matrix? 
+    - Treatment is fixed effect, plot as random effect $\rightarrow$ effect of variation in plot can be estimated
+    - Variation within the treatment is difficult to answer
+    - Is the distribution of the random effects across the treatments the same?
+    - Include one random unit per treatment and plot; remaining plots which get another treatment get assigned another fake unit $\rightarrow$ see section 7.5 Covariate-dependent species associations
+
+- (jumped back to Mirkka's session)
+
+- What was the question? Residuals of **Y** can be ordinated (RDA) $\rightarrow$ goes into random effects in HMSC
+
+- Q8) What is the benefit of HMSC compared to "traditional" methods, especially for variance partitioning?
+
+    - Generally borrowing information from other species
+    
+    - Including traits and phylogeny 
+ 
+    - Jari: Variance partitioning for every species can be obtained, can be actually done with RDA but don't tell Legrande! 
+  
+    - Even with just Y and X this approach is more informative, because it's species oriented instead of being site oriented (which are the traditional methods)
+    
+    - Integrating spatial structure as well is nice! In practice all other methods can only have one (i.e. traits, phylogeny, spatial structure) 
+
+- Q9) Interactions in JSDM: Problem with some interaction patterns like asymmetric interactions? (what are these actually?)
+    
+    -  All interactions in HMSC are symmetric. What one sees in HMSC are patterns which means one has to study deeper what actually happens (theory!) if a pattern emerges.
+
+- Q10) Maximum Number of covariates to include in an HMSC model?
+    
+    - Env. covariates limited by number of samples 
+   
+    - For traits it's the number of taxa    
+
+- Q11) Follow up: Would you recommend combining covariates related to some special factor (e.g. data on soil fertility)
+
+    - Depends on the data, e.g. soil chemistry data based on sampling, super!
+    - Or again use PCA or related
+
+- Q12) Missed the question because Andi came in, something general about sample size yada yada
+
+    - Think about environmental gradient (long gradient better to see any pattern)
+
+- Q13) Taxonomic resolution in data, including more data but having a coarser taxonomic level?
+
+    - Depends on the goal, there might be high variation within genera for example
+    - Could use dummy taxa per genera 
+
+- Q14) Time series?
+  
+    - Can be done with even one site! And then evaluate change over time 
+
+- Q15) Very small datasets?
+    
+    - High uncertainty in the parameter estimates, but you could do it 
+
+- Q16) Sampling multiple times? 
+
+    - That increases sample size 
+
+- Q17) Something about within plot environmental variation which I didn't get 
+
+- Q18) What influences runtime the most?
+
+    - Species more than number of rows
+    - Spatial effects need long
+    - If one adds traits and phylogeny it even takes longer of course
+    - Jari doesn't know when he runs a model beforehand how long it takes, try with very small samples and then multiply the time (gives usually good estimate about the true time)
+    - Mac, Linux runs faster, Don't forget to parallize as well! 
+    - Update BLAS(), LPAC()! (obtained by sessionInfo())
+    - Jari's speed demon settings: *BLAS: /System/Library/Frameworks/Accelerate.framework/Versions/A/ Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+    LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib *
+    - See also: https://csantill.github.io/RPerformanceWBLAS/
+ 
+- Q19) What was the question?
+  -  Random effects don't have to be hierarchical
+  -  Study design has the name of the plots/ row.names(xy) = unique_sample_ID (see example scripts)
+  
+# How to write materials and methods when using HMSC
+
+1) Overview of HMSC
+      - Taylored to the specific study (e.g. how is it spatially structured?)
+2) Study design and data selection
+     - How many species
+     - Where surveyed?
+     - Exclusion of rare species? (otherwise convergence issues)
+     - Additional models for the raw species? (some regression model with env. variables for robustness checks)
+3) Sampling units and response variable
+    - Sampling units, e.g. individual visits
+    - Response: Counts, presence-absence
+    - Nature of the data: e.g. "zero-inflated, thus we applied a hurdle model"
+    - Which error distribution (e.g. probit in presence-absence, linear regr. for transformed count data...)
+    - Transformation & potential scaling of count data 
+4) Predictors (how was the model defined)
+   - Fixed effects (sampling units times covariates matrix)
+   - Main interest is the effect of...
+   - Include traits, examine how responses of species are influenced by traits
+   - Include phylogeny, e.g.: We examined if variation in species niches was phylogenetically structured (closely related species had more similar responses than distantly related species). Phylogenetic tree derived from XXX
+   - Random effects: to account for the spatial nature of the study design...
+5) Model fitting
+   - Fitted the model with the R-package HMSC assuming the default prior distributions (see Chapter 8 of Ovaskainen and Abrego 2020 book).
+   - How was the posterior distribution sampled? (Chains, samples, iterations $\rightarrow$ thinning, transient/burn-in)
+   - Examination of MCMC convergence: Scale reduction factors (refer to SI)
+6) Postprocessing of results 
+   - Model fit: 
+     - explanatory and predictive power:
+       - $AUC$ and $Tjur's R^2$ $\rightarrow$ probit models
+       - abundance COP: $R^2$
+     - What does explanatory and predictive power mean? (Model predictions based on all data or on based on CV)
+    - Parameter values:  
+       - To quantify drivers of community structure, we partitioned the explained variation among the fixed and random effects
+       - Main study questions: e.g. Beta parameters (positive or negative response with measure of statistical uncertainty like 95 % posterior probability)
+
+# How to write the results section?
+
+- Start with descriptive statistics of the data
+- MCMC convergence
+    - Report: "Potential scale reduction factors for the $\beta$ parameters (response of species to env. covariates) $\rightarrow$ were on average XXX (maximum) for presence-absence model and (if other models used) ..."
+    - Same also for $\gamma$ parameters
+    - $\beta$ plots give the marginal effect
+- Model fit
+    - "Mean $TjurR^2$ for model ... is on average XXX for explanatory power and XXX for the predictive power"
+- What explains variation in the data?
+    - How is explanatory power distributed across taxa? look on taxonomy
+    - Could also group by traits, e.g.  Which traits taxa which have a high explanatory power express?
+    - Model fit vs species prevalence  $\rightarrow$ Species that are rare and those that occur everywhere will also have low explanatory power
+- Phylogenetic signal if the data exist
+    - Posterior probability of $\rho$ in used models and expected $\rho$ 
+    - How does the phylogenetic signal corresponds to the environmental covariate 
+- Possibly traits if trait data exist

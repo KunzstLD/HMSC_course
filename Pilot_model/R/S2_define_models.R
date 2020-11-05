@@ -12,7 +12,10 @@ library(Hmsc)
 # DataDir = file.path(localDir, "data")
 # library(Hmsc)
 # 
-# load(file=file.path(DataDir,"allData.R")) #S,X,Y,Tr,P & Tax (where P is based on Tax)
+load(file=file.path(getwd(),
+                    "Pilot_model",
+                    "Data",
+                    "allData.R")) #S,X,Y,Tr,P & Tax (where P is based on Tax)
 #_________________________________________________________________________________________________
 
 # loaded from disk, P is missing

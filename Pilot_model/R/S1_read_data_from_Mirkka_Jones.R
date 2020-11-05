@@ -14,7 +14,8 @@ SXY <- read.csv(file.path(getwd(), "SXY.csv"),
                 stringsAsFactors = TRUE) # or use read.csv2 when values are semicolon-separated
 
 # Modify the next three lines to split your SXY file to components that relate to
-# S: study design, including units of study and their possible coordinates (named as Route_x and Route_y to indicate that they relate to the units of Route)
+# S: study design, including units of study and their possible coordinates 
+# (named as Route_x and Route_y to indicate that they relate to the units of Route)
 # X: covariates to be used as predictors
 # Y: species data
 # If you don't have variables that define the study design, indicate this by S=NULL
