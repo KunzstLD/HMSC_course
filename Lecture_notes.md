@@ -23,6 +23,8 @@ output:
   - [Traits](#traits-1)
 - [How to write materials and methods when using HMSC](#how-to-write-materials-and-methods-when-using-hmsc)
 - [How to write the results section?](#how-to-write-the-results-section)
+- [Biotic interactions](#biotic-interactions)
+- [What else can be done with HMSC?](#what-else-can-be-done-with-hmsc)
 
 
 # Organisation
@@ -274,6 +276,8 @@ See chapter 6
 ## Model selection
 
 Possible: 
+
+- Don't try all possible combinations
 - Select a priori: e.g. with correlation community data axis (Y) related to covariates (X)
   
   Approach Mirkka Jones (said earlier):
@@ -296,6 +300,12 @@ Possible:
     $\rightarrow$ Jari Oksanen is not a fan of this approach  
 
 - Variance that traits explain in species niches and in species occurrences can be found in matrix $V$ (TODO check again chapter 6.3)
+
+- Specific techniques in HMSC:
+  - Cross-validation (e.g. predictive power)
+  - WAIC
+  - Spike and slab prior (Section 9.4.2)
+  - Reduced ranked regression
 
 - Trait interactions can be included!  
   
@@ -388,11 +398,13 @@ Possible:
     - Jari doesn't know when he runs a model beforehand how long it takes, try with very small samples and then multiply the time (gives usually good estimate about the true time)
     - Mac, Linux runs faster, Don't forget to parallize as well! 
     - Update BLAS(), LPAC()! (obtained by sessionInfo())
-    - Jari's speed demon settings: *BLAS: /System/Library/Frameworks/Accelerate.framework/Versions/A/ Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
-    LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib *
-    - See also: https://csantill.github.io/RPerformanceWBLAS/
+    - Jari's speed demon settings, updating matrix calculations in R:
+      -  BLAS: /System/Library/Frameworks/Accelerate.framework/Versions/A/ Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+      - LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib *
+      - See also: https://csantill.github.io/RPerformanceWBLAS/
  
 - Q19) What was the question?
+  
   -  Random effects don't have to be hierarchical
   -  Study design has the name of the plots/ row.names(xy) = unique_sample_ID (see example scripts)
   
@@ -448,3 +460,42 @@ Possible:
     - Posterior probability of $\rho$ in used models and expected $\rho$ 
     - How does the phylogenetic signal corresponds to the environmental covariate 
 - Possibly traits if trait data exist
+
+# Biotic interactions
+
+Occurrence 
+
+co-occurrence probabilities:
+  - Prevalence, e.g. two species:
+
+    - See both species
+    - See either one of the species while the other is absent
+    - See non of both species
+
+  - IF probabilities independent:
+    - multiply occurrence probabilities
+
+  - What if they interact? 
+    - Negative association 
+    - Positive association 
+    - Can be seen in residual association 
+
+- Model extends to second linear predictor, i.e. the random effects ($L_{ij} = L^F_{ij} + L^R_{ij}$)
+- Random effect: 
+    - Site loadings (sampling unit $\rightarrow$ what one did NOT measure, missing env. covariate),
+    - Species loadings (analogous to $\beta$ $\rightarrow$ how do species respond to missing covariates?)
+    - Estimated from the data via Bayesian latent factors ($n_f number of factors$)
+
+- Prior distributions: 
+    - Site loadings assumed to follow ND
+    - Multiplicative gamma process shrinking prior for species loadings
+
+- Species associations matrix:
+    - Species that occur more than by random, i.e. more than explained by the fixed effects
+    - Cannot distinguish between missed covariates and biotic interactions (of course)
+
+# What else can be done with HMSC?
+
+- Estimate large correlation matrices
+- Multiple phenological phases
+- Transcriptomes (= DNA expressions)
